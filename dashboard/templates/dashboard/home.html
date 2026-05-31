@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Numiq - لوحة التحكم</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; }
+        .navbar { background: #1e293b; border-bottom: 1px solid #334155; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; }
+        .stat-card { transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .profit { color: #22c55e; }
+        .loss { color: #ef4444; }
+        .neutral { color: #94a3b8; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar px-4 py-3 d-flex justify-content-between align-items-center">
+    <span class="fw-bold fs-4" style="color: #6366f1;">📊 Numiq</span>
+    <span class="text-muted small">لوحة تحليلات المتجر</span>
+</nav>
+
+<div class="container-fluid mt-4 px-4">
+
+    <!-- الأرقام الرئيسية -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card p-3 stat-card">
+                <p class="text-muted small mb-1">إجمالي المبيعات</p>
+                <h3 class="fw-bold profit">{{ total_revenue }} ر.س</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 stat-card">
+                <p class="text-muted small mb-1">صافي الربح</p>
+                <h3 class="fw-bold profit">{{ net_profit }} ر.س</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 stat-card">
+                <p class="text-muted small mb-1">تكلفة الشحن</p>
+                <h3 class="fw-bold loss">{{ shipping_cost }} ر.س</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 stat-card">
+                <p class="text-muted small mb-1">إنفاق الإعلانات</p>
+                <h3 class="fw-bold loss">{{ ad_spend }} ر.س</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- الرسم البياني -->
+    <div class="row g-3">
+        <div class="col-md-8">
+            <div class="card p-4">
+                <h6 class="fw-bold mb-3">المبيعات اليومية</h6>
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 h-100">
+                <h6 class="fw-bold mb-3">ملخص الأرباح</h6>
+                <canvas id="profitChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const days = {{ days|safe }};
+const sales = {{ daily_sales|safe }};
+
+new Chart(document.getElementById('salesChart'), {
+    type: 'line',
+    data: {
+        labels: days,
+        datasets: [{
+            label: 'المبيعات',
+            data: sales,
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99,102,241,0.1)',
+            fill: true,
+            tension: 0.4,
+        }]
+    },
+    options: {
+        plugins: { legend: { labels: { color: '#e2e8f0' } } },
+        scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+        }
+    }
+});
+
+new Chart(document.getElementById('profitChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['صافي الربح', 'الشحن', 'الإعلانات', 'المرتجعات'],
+        datasets: [{
+            data: [{{ net_profit }}, {{ shipping_cost }}, {{ ad_spend }}, {{ returns }}],
+            backgroundColor: ['#22c55e', '#ef4444', '#f59e0b', '#6366f1'],
+        }]
+    },
+    options: {
+        plugins: { legend: { labels: { color: '#e2e8f0' } } }
+    }
+});
+</script>
+
+</body>
+</html>
